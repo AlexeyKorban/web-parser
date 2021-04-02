@@ -31,4 +31,14 @@ public class Doll {
     public LocalDate getLastUpdate() {
         return lastUpdate;
     }
+
+    @Override
+    public String toString() {
+        return "Doll{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", url='" + url + '\'' +
+                ", lastUpdate=" + lastUpdate +
+                '}';
+    }
 }

@@ -14,27 +14,40 @@ public class DollParserImpl implements DollParser {
     @Override
     public Optional<Doll> getDollFromPage(String url) throws IOException {
         Document document = Jsoup.connect(url).get();
-        var name = document.getElementById("productName").childNode(0).toString();
-        var priceString = document.getElementById("productPrices").childNode(0).toString().replaceAll("\\$", "").trim();
-        BigDecimal price = new BigDecimal(priceString);
-        return Optional.of(new Doll(name, price, url, LocalDate.now()));
+        var nameElement = document.getElementById("productName");
+        if (nameElement != null && nameElement.childNodeSize() > 0) {
+            var name = document.getElementById("productName").childNode(0).toString();
+            var priceString = document.getElementById("productPrices").childNode(0).toString().replaceAll("\\$", "").trim();
+            BigDecimal price = new BigDecimal(priceString);
+            return Optional.of(new Doll(name, price, url, LocalDate.now()));
+        }
+        return Optional.empty();
     }
 
     @Override
-    public Set<String> getUrls(String url) throws IOException {
-        Set<String> urls = new HashSet<>();
+    public List<Doll> getDolls(String url) throws IOException {
+        Set<String> parserUrls = new HashSet<>();
         TreeSet<String> urlsToParse = new TreeSet<>();
+        List<Doll> dollList = new ArrayList<>();
         urlsToParse.add(url);
         while (!urlsToParse.isEmpty()) {
             var currentUrl = urlsToParse.pollFirst();
             Set<String> urlsFromPage = getUrlsFromPage(currentUrl);
             for (String urlFromPage : urlsFromPage) {
-                if (urls.add(urlFromPage)) {
+                if (parserUrls.add(urlFromPage)) {
+
+                    try {
+                        var doll = getDollFromPage(urlFromPage);
+                        doll.ifPresent(System.out::println);
+                        doll.ifPresent(dollList::add);
+                    } catch (Exception e) {
+
+                    }
                     urlsToParse.add(urlFromPage);
                 }
             }
         }
-        return urls;
+        return dollList;
     }
 
     private Set<String> getUrlsFromPage(String url) throws IOException {
@@ -43,6 +56,10 @@ public class DollParserImpl implements DollParser {
         if (links.isEmpty()) {
             return new HashSet<>();
         }
-        return links.stream().map(link -> link.attr("abs:href")).filter(link -> link.contains("acbjd.com")).collect(Collectors.toSet());
+        return links.stream()
+                .map(link -> link.attr("abs:href"))
+                .filter(link -> link.contains("acbjd.com"))
+                .peek(System.out::println)
+                .collect(Collectors.toSet());
     }
 }

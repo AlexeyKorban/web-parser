@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,8 +30,8 @@ class DollParserImplTest {
 
     @Test
     void getUrlsShouldWork() throws IOException {
-        Set<String> urls = parser.getUrls("http://www.acbjd.com/");
-        System.out.println(urls);
-        assertTrue(urls.size() > 0);
+        List<Doll> dolls = parser.getDolls("http://www.acbjd.com/");
+        System.out.println(dolls);
+        assertTrue(dolls.size() > 0);
     }
 }
